@@ -1,8 +1,13 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * HTTP Data Retriever
+ *
+ * CMSC 335
+ * Project 4
+ * @author Leo Wack
+ * Fall 2015
+ * IDE: Netbeans 8.0.2             
  */
+
 package project4;
 
 import java.util.*;
@@ -19,6 +24,7 @@ public class HttpDataRetriever implements DataRetriever{
         FileOutputStream outstream = null;
         InputStream instream = null;
         try{
+            //Picks a random file to download
             Random rand = new Random();
             int	fileIndex = rand.nextInt(10)+1;   
             URL dataUrl = new URL("http://cmsc335.s3-website-us-east-1.amazonaws.com/" + fileIndex + ".dat");
@@ -29,12 +35,12 @@ public class HttpDataRetriever implements DataRetriever{
             file = File.createTempFile("random", ".txt");
             outstream = new FileOutputStream(file);
             
-            //Write data
+            //write instream to outstream using a buffer
             byte[] buffer = new byte[1024];
-            int len = instream.read(buffer);
-            while (len != -1) {
-                outstream.write(buffer, 0, len);
-                len = instream.read(buffer);
+            int i = instream.read(buffer);
+            while (i != -1) {
+                outstream.write(buffer, 0, i);
+                i = instream.read(buffer);
             }
             outstream.close();
             instream.close();

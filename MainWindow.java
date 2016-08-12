@@ -3,7 +3,7 @@
  * Main UI
  *
  * CMSC 335
- * Project 3
+ * Project 4
  * @author Leo Wack
  * Fall 2015
  * IDE: Netbeans 8.0.2             
@@ -24,11 +24,11 @@ public class MainWindow extends javax.swing.JFrame {
     private File outputDir = null;
     private DataRetriever blockGenerator = new HttpDataRetriever();
     private ExecutorDataProcessor blockProcessor = null;
-    private int blockCount=1;
+    private int blockCount = 1;
+    private int finishedCount = 0;
     private int threadCount = 1;
     private final JFileChooser fc = new JFileChooser();
     private ArrayList<Future> futureList = new ArrayList<>();
-    private int finishedCount=0;
     private AnalysisAlgorithm algorithm = new NaiveAnalysisAlgorithm();
         
     public MainWindow() {
@@ -101,6 +101,7 @@ public class MainWindow extends javax.swing.JFrame {
 
         threadLabel.setText("Thread Count:");
 
+        threadSlider.setMajorTickSpacing(1);
         threadSlider.setMaximum(5);
         threadSlider.setMinimum(1);
         threadSlider.setMinorTickSpacing(1);
@@ -207,7 +208,6 @@ public class MainWindow extends javax.swing.JFrame {
                 if(!outputDir.exists())
                     throw new FileNotFoundException();  //blank or non-existent file path
                 blockProcessor = new ExecutorDataProcessor(outputDir, algorithm, threadCount);
-                //System.out.println(algorithm.toString());
                 logField.setText(null);
                 for(int i=1;i<blockCount+1;i++){
                     logField.append("Retrieving data block "+i+"\n");
@@ -225,10 +225,10 @@ public class MainWindow extends javax.swing.JFrame {
                 }
                 logField.append("Submitted "+blockCount+" blocks\n");
                 //Timer for checking future list
-                final Timer t = new Timer(2500, null);
+                Timer t = new Timer(2500, null);                        
                 t.addActionListener(new ActionListener(){
                     @Override
-                    public void actionPerformed(ActionEvent a){
+                    public void actionPerformed(ActionEvent a){                        
                         Iterator<Future> itr = futureList.iterator();
                         logField.append("Checking for completed blocks...\n");
                         while (itr.hasNext()){
@@ -240,22 +240,20 @@ public class MainWindow extends javax.swing.JFrame {
                                     finishedCount++;
                                 }
                                 if (finishedCount == blockCount){
-                                    logField.append("Completed analysis on all blocks");
-                                    blockProcessor.shutdown();
                                     t.stop();
+                                    finishedCount = 0;
+                                    blockProcessor.shutdown();
+                                    logField.append("Block analysis complete");
                                 }
                             }
                             catch (Exception e){
                                 e.printStackTrace();
                             }
                         }
-                        
                     }
                 });
-                
-                t.start();
-                
-                
+                //start timer
+                t.start();   
             }
             catch(FileNotFoundException e){
                 JOptionPane.showMessageDialog(getContentPane(), "Please choose an existing directory");

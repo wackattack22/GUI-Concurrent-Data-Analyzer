@@ -1,7 +1,11 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Executor Data Processor
+ *
+ * CMSC 335
+ * Project 4
+ * @author Leo Wack
+ * Fall 2015
+ * IDE: Netbeans 8.0.2             
  */
 package project4;
 
@@ -17,15 +21,17 @@ public class ExecutorDataProcessor implements DataProcessor{
     private int fileCount = 0;
     ExecutorService executorService;
      
-    //Construct with output source location and algorithm choice
+    //Construct with output source location, algorithm choice, and thread count
     public ExecutorDataProcessor(File outputDir, AnalysisAlgorithm algorithm, int threadCount){
         this.outputDir = outputDir;
         this.algorithm = algorithm;
+        //Instantiate executor service with user defined thread count
         this.executorService = Executors.newFixedThreadPool(threadCount);
     }
     
     @Override
     public Future<File> processDataBlock(File dataFile){
+        //Submit worker to executor service
         Future task = executorService.submit(new Worker(dataFile));
         return task;
     }
@@ -38,14 +44,13 @@ public class ExecutorDataProcessor implements DataProcessor{
     
     //Inner Callable Worker class
     private class Worker implements Callable<File> {
+        
         private File inputFile = null;
         private File newFile = new File(outputDir.toString()+"\\Output"+(++fileCount)+".txt");
         //Constructs with input data source
         public Worker(File inputFile) {
             this.inputFile = inputFile;
         }
-        
-        
         
         @Override
         public File call() throws Exception {
